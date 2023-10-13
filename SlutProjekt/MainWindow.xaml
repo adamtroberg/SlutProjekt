@@ -1,0 +1,38 @@
+﻿<Window x:Class="SlutProjekt.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:SlutProjekt"
+        mc:Ignorable="d"
+        Title="Andragradsekvations lösare" Height="600" Width="400">
+    <Window.Resources>
+        <SolidColorBrush x:Key="LightGreenColor" Color="LightGreen"/>
+    </Window.Resources>
+    <StackPanel Margin="5">
+        <Label FontSize="12" FontWeight="Medium" Margin="10,10,10,10" Height="40" HorizontalAlignment="Center" Content="Välj mellan komplexa och reella rötter&#10;samt form på kvadratisk ekvation"/>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <Button Click="RealChecked" Name="btnReal" Grid.Column="0" Grid.Row="0" Width="180" Height="50" Content="Reella Tal"/>
+            <Button Click="ComplexChecked" Name="btnComplex" Grid.Column="1" Grid.Row="0" Width="180" Height="50" Content="Komplexa Tal"/>
+            <Button Margin="0,10,0,0" Click="ABCChecked" Name="btnABC" Grid.Column="0" Grid.Row="1" Width="180" Height="50" Content="ABC-form"/>
+            <Button Margin="0,10,0,0" Click="PQChecked" Name="btnPQ" Grid.Column="1" Grid.Row="1" Width="180" Height="50" Content="PQ-form"/>
+        </Grid>
+        <Label Name="lblForm" Margin="10, 15, 10, 0" HorizontalAlignment="Center" Content="Vald form på ekvation: "/>
+        <Label Name="lblRoots" Margin="10, 15, 10, 0" HorizontalAlignment="Center" Content="Vald talmängd för rötter: "/>
+        <Label Margin="10,15,10,0" HorizontalAlignment="Center" Name="lblA" Content="Välj värde för a"/>
+        <TextBox Margin="10,5,10,0" Width="100" Name="txtboxA" HorizontalAlignment="Center"/>
+        <Label Margin="10,15,10,0" HorizontalAlignment="Center" Name="lblB" Content="Välj värde för b"/>
+        <TextBox Margin="10,5,10,0" Width="100" Name="txtboxB" HorizontalAlignment="Center"/>
+        <Label Margin="10,15,10,0" HorizontalAlignment="Center" Name="lblC" Content="Välj värde för c"/>
+        <TextBox Margin="10,5,10,0" Width="100" Name="txtboxC" HorizontalAlignment="Center"/>
+        <Button Name="btnCalculate" Width="250" Height="50" Background="{DynamicResource LightGreenColor}" Margin="0,20,0,0" HorizontalAlignment="Center" Content="Beräkna" Click="Calculate"/>
+    </StackPanel>
+</Window>
