@@ -11,16 +11,17 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
+using System.Numerics;
 using System.Windows.Shapes;
 
 namespace SlutProjekt
 {
     /// <summary>
-    /// Interaction logic for xaml
+    /// Interaction logic for XAML
     /// </summary>
     public partial class MainWindow : Window
     {
-        private bool complexActivated = false;
+        static bool complexActivated = false;
 
         public void ComplexChecked(object sender, RoutedEventArgs e)
         {
@@ -38,7 +39,7 @@ namespace SlutProjekt
             complexActivated = false;
         }
 
-        public void ABCChecked(object sender, RoutedEventArgs e)
+        public void ABCChecked(object sender, RoutedEventArgs  e)
         {
             btnABC.IsEnabled = false;
             btnPQ.IsEnabled = true;
@@ -60,6 +61,53 @@ namespace SlutProjekt
             lblC.Content = "Välj värde för q";
         }
 
+        public void Calculate(object sender, RoutedEventArgs e)
+        {
+            if (!btnABC.IsEnabled)
+            {
+                if (Helpers.IsDouble(txtboxA.Text) && Helpers.IsDouble(txtboxB.Text) && Helpers.IsDouble(txtboxC.Text))
+                {
+                    ABCEquation currentEquation = new ABCEquation(Double.Parse(txtboxA.Text), Double.Parse(txtboxB.Text), Double.Parse(txtboxC.Text));
+                    if (complexActivated == false)
+                    {
+                        Mathematics.FindRealRoots(currentEquation);
+                    }
+                    else
+                    {
+                        Mathematics.FindComplexRoots(currentEquation);
+                    }
+                }
+                else
+                {
+                    MessageBox.Show("Kan inte beräkna: Värdena måste vara ett reellt tal.\n(OBS: Decimaltal separeras med komma, inte punkt.)");
+                }
+            }
+            else if (!btnPQ.IsEnabled) 
+            {
+                if (Helpers.IsDouble(txtboxB.Text) && Helpers.IsDouble(txtboxC.Text))
+                {
+                    PQEquation currentEquation = new PQEquation(Double.Parse(txtboxB.Text), Double.Parse(txtboxC.Text));
+                    if (complexActivated == false)
+                    {
+                        Mathematics.FindRealRoots(currentEquation);
+                    }
+                    else
+                    {
+                        Mathematics.FindComplexRoots(currentEquation);
+                    }
+                }
+                else
+                {
+                    MessageBox.Show("Kan inte beräkna: Värdena måste vara ett reellt tal.\n(OBS: Decimaltal separeras med komma, inte punkt.)");
+                }
+            }
+            else
+            {
+                MessageBox.Show("Kan inte beräkna: Välj en form på ekvationen.");
+            }
+
+        }
+
         public abstract class Equation
         {
             protected double coefficient1;
@@ -70,7 +118,11 @@ namespace SlutProjekt
                 this.coefficient1 = coefficient1;
                 this.coefficient2 = coefficient2;
             }
+            public virtual void SetEquation(double coefficient1, double coefficient2, double coefficient3){}
 
+            public virtual void SetEquation(double coefficient1, double coefficient2){}
+
+            public abstract double[] GetCoefficients();
             public abstract string GetEquation();
         }
 
@@ -85,7 +137,24 @@ namespace SlutProjekt
 
             public override string GetEquation()
             {
-                return $"{coefficient1}x^2 + {coefficient2}x + {coefficient3} = 0";
+                return $"{coefficient1}x² + {coefficient2}x + {coefficient3} = 0";
+            }
+
+            public override void SetEquation(double coefficient1, double coefficient2, double coefficient3)
+            {
+
+                    this.coefficient1 = coefficient1;
+                    this.coefficient2 = coefficient2;
+                    this.coefficient3 = coefficient3;
+            }
+
+            public override double[] GetCoefficients()
+            {
+                double[] array = new double[3];
+                array[0] = coefficient1;
+                array[1] = coefficient2;
+                array[2] = coefficient3;
+                return array;
             }
         }
 
@@ -98,55 +167,169 @@ namespace SlutProjekt
 
             public override string GetEquation()
             {
-                return $"x^2 + {coefficient1}x + {coefficient2} = 0";
+                return $"x² + {coefficient1}x + {coefficient2} = 0";
+            }
+
+            public override void SetEquation(double coefficient1, double coefficient2)
+            {
+                this.coefficient1 = coefficient1;
+                this.coefficient2 = coefficient2;
+            }
+
+            public override double[] GetCoefficients()
+            {
+                double[] array = new double[2];
+                array[0] = coefficient1;
+                array[1] = coefficient2;
+                return array;
             }
         }
-        public void Calculate(object sender, RoutedEventArgs e)
+        
+        public class Mathematics
         {
-            if (!btnABC.IsEnabled)
+            public static double[] FindRealRoots(Equation equation)
             {
-                if (Helpers.IsDouble(txtboxA.Text) && Helpers.IsDouble(txtboxB.Text) && Helpers.IsDouble(txtboxC.Text))
+                double[] roots;
+                string equationType = equation.GetType().Name;
+
+                if (equationType == "ABCEquation")
                 {
-                    ABCEquation currentEquation = new ABCEquation(Double.Parse(txtboxA.Text), Double.Parse(txtboxB.Text), Double.Parse(txtboxC.Text));
+                    ABCEquation abcEquation = equation as ABCEquation;
+                    double[] coefficients = abcEquation.GetCoefficients();
+                    double a = coefficients[0];
+                    double b = coefficients[1];
+                    double c = coefficients[2];
+
+                    double discriminant = b * b - 4 * a * c;
+
+                    if (discriminant < 0)
+                    {
+
+                    }
+
+                    if (discriminant > 0)
+                    {
+                        roots = new double[2];
+                        roots[0] = (-b + Math.Sqrt(discriminant)) / (2 * a);
+                        roots[1] = (-b - Math.Sqrt(discriminant)) / (2 * a);
+                        return roots;
+                    }
+
+                    if (discriminant == 0)
+                    {
+                        roots = new double[1];             
+                        roots[0] = (-b / (2 * a));
+                        return roots;
+                    }
+                    
+
                 }
-                else
+                else if (equationType == "PQEquation")
                 {
-                    MessageBox.Show("Kan inte beräkna: Värdena måste vara ett reellt tal.\n(OBS: Decimaltal separeras med komma, inte punkt.)");
+                    
+                    PQEquation pqEquation = equation as PQEquation;
+                    double[] coefficients = pqEquation.GetCoefficients();
+                    double p = coefficients[0];
+                    double q = coefficients[1];
+
+                    double discriminant = p * p * 0.25 - q;
+
+                    if (discriminant < 0)
+                    {
+
+                    }
+
+                    if (discriminant > 0)
+                    {
+                        roots = new double[2];
+                        roots[0] = (-p/2 + Math.Sqrt(discriminant));
+                        roots[1] = (-p/2 - Math.Sqrt(discriminant));
+                        return roots;
+                    }
+
+                    if (discriminant == 0)
+                    {
+                        roots = new double[1];
+                        roots[0] = (-p / 2);
+                        return roots;
+                    }
                 }
+                
             }
-            else if (!btnPQ.IsEnabled)
+            
+            public static Complex[] FindComplexRoots(Equation equation)
             {
-                if (Helpers.IsDouble(txtboxB.Text) && Helpers.IsDouble(txtboxC.Text))
+                Complex[] rootsComplex = new Complex[2];
+                string equationType = equation.GetType().Name;
+
+                if (equationType == "ABCEquation")
                 {
-                    PQEquation currentEquation = new PQEquation(Double.Parse(txtboxB.Text), Double.Parse(txtboxC.Text));
+                    ABCEquation abcEquation = equation as ABCEquation;
+                    double[] coefficients = abcEquation.GetCoefficients();
+                    double a = coefficients[0];
+                    double b = coefficients[1];
+                    double c = coefficients[2];
+
+                    double discriminant = b * b - 4 * a * c;
+                    
+                    if (discriminant >= 0)
+                    {
+
+                    }
+
+                    else if (discriminant < 0)
+                    {
+                        Complex Re = (-b / (2*a*c));
+                        Complex Im = Math.Sqrt(discriminant);
+
+                        rootsComplex[0] = Re + Im * Complex.ImaginaryOne;
+                        return rootsComplex;
+                    }
+
                 }
-                else
-                {
-                    MessageBox.Show("Kan inte beräkna: Värdena måste vara ett reellt tal.\n(OBS: Decimaltal separeras med komma, inte punkt.)");
+
+
+
+               else if (equationType == "PQEquation")
+               {
+                    PQEquation pqEquation = equation as PQEquation;
+                    double[] coefficients = pqEquation.GetCoefficients();
+                    double p = coefficients[0];
+                    double q = coefficients[1];
+
+                    double discriminant = p * p * 0.25 - q;
+
+                    if (discriminant >= 0)
+                    {
+                        // FELKOD
+                    }
+
+                    else if (discriminant < 0 && complexActivated)
+                    {
+                        Complex Re = (-p / 2);
+                        Complex Im = Math.Sqrt(discriminant);
+
+                        rootsComplex[0] = Re + Im * Complex.ImaginaryOne;
+                        return rootsComplex;
+                    }
                 }
+        }
+
+        
+    }
+    public class Helpers
+    {
+        public static bool IsDouble(string input)
+        {
+            double output = 0;
+            if (Double.TryParse(input, out output))
+            {
+                return true;
             }
             else
             {
-                MessageBox.Show("Kan inte beräkna: Välj en form på ekvationen.");
-            }
-
-        }
-
-
-        public class Helpers
-        {
-            public static bool IsDouble(string input)
-            {
-                double output = 0;
-                if (Double.TryParse(input, out output))
-                {
-                    return true;
-                }
-                else
-                {
-                    return false;
-                }
+                return false;
             }
         }
     }
-}
+    }
