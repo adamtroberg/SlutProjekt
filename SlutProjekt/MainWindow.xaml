@@ -44,6 +44,11 @@
 
         <StackPanel Grid.Column="1">
             <Label FontSize="20" FontWeight="Medium" Margin="10,10,10,10" Height="40" HorizontalAlignment="Center" Content="Resultat"/>
+            <Label Content="Ekvation:" Height="40" Width="200"/>
+            <Label Name="lblEquation" Content=""/>
+            <Label Content="Rötter:" Height="40" Width="200"/>
+            <Label Name="lblSolvedRoots" Height="100"  Content=""/>
         </StackPanel>
+        <ComboBox Grid.Column="1" HorizontalAlignment="Left" Margin="451,5,0,0" VerticalAlignment="Top" Width="120"/>
     </Grid>
 </Window>

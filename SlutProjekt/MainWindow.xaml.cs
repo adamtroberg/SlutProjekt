@@ -27,7 +27,7 @@ namespace SlutProjekt
         {
             btnComplex.IsEnabled = false;
             btnReal.IsEnabled = true;
-            lblRoots.Content = "Vald talmängd på rötter: Komplexa och Reella";
+            lblRoots.Content = "Vald talmängd på rötter: Komplexa";
             complexActivated = true;
         }
 
@@ -39,7 +39,7 @@ namespace SlutProjekt
             complexActivated = false;
         }
 
-        public void ABCChecked(object sender, RoutedEventArgs  e)
+        public void ABCChecked(object sender, RoutedEventArgs e)
         {
             btnABC.IsEnabled = false;
             btnPQ.IsEnabled = true;
@@ -68,13 +68,25 @@ namespace SlutProjekt
                 if (Helpers.IsDouble(txtboxA.Text) && Helpers.IsDouble(txtboxB.Text) && Helpers.IsDouble(txtboxC.Text))
                 {
                     ABCEquation currentEquation = new ABCEquation(Double.Parse(txtboxA.Text), Double.Parse(txtboxB.Text), Double.Parse(txtboxC.Text));
+                    lblEquation.Content = Helpers.EquationToString(currentEquation);
                     if (complexActivated == false)
                     {
-                        Mathematics.FindRealRoots(currentEquation);
+                        string rootsString = "";
+                        double[] roots = Mathematics.FindRealRoots(currentEquation);
+                        if (roots != null)
+                        {
+                            lblSolvedRoots.Content = roots.ToString();
+                        }
+                        
                     }
                     else
                     {
-                        Mathematics.FindComplexRoots(currentEquation);
+                        string rootsString = "";
+                        Complex[] roots = Mathematics.FindComplexRoots(currentEquation);
+                        if (roots != null)
+                        {
+                            lblSolvedRoots.Content = roots.ToString();
+                        }
                     }
                 }
                 else
@@ -82,18 +94,31 @@ namespace SlutProjekt
                     MessageBox.Show("Kan inte beräkna: Värdena måste vara ett reellt tal.\n(OBS: Decimaltal separeras med komma, inte punkt.)");
                 }
             }
-            else if (!btnPQ.IsEnabled) 
+            else if (!btnPQ.IsEnabled)
             {
                 if (Helpers.IsDouble(txtboxB.Text) && Helpers.IsDouble(txtboxC.Text))
                 {
                     PQEquation currentEquation = new PQEquation(Double.Parse(txtboxB.Text), Double.Parse(txtboxC.Text));
+                    lblEquation.Content = Helpers.EquationToString(currentEquation);
                     if (complexActivated == false)
                     {
-                        Mathematics.FindRealRoots(currentEquation);
+                        string rootsString = "";
+                        double[] roots = Mathematics.FindRealRoots(currentEquation);
+                        if (roots != null)
+                        {
+                            lblSolvedRoots.Content = roots.ToString();
+                        }
+
                     }
                     else
                     {
-                        Mathematics.FindComplexRoots(currentEquation);
+                        string rootsString = "";
+                        Complex[] roots = Mathematics.FindComplexRoots(currentEquation);
+                        if (roots != null)
+                        {
+                            
+                            lblSolvedRoots.Content = rootsString;
+                        }
                     }
                 }
                 else
@@ -118,9 +143,9 @@ namespace SlutProjekt
                 this.coefficient1 = coefficient1;
                 this.coefficient2 = coefficient2;
             }
-            public virtual void SetEquation(double coefficient1, double coefficient2, double coefficient3){}
+            public virtual void SetEquation(double coefficient1, double coefficient2, double coefficient3) { }
 
-            public virtual void SetEquation(double coefficient1, double coefficient2){}
+            public virtual void SetEquation(double coefficient1, double coefficient2) { }
 
             public abstract double[] GetCoefficients();
             public abstract string GetEquation();
@@ -143,9 +168,9 @@ namespace SlutProjekt
             public override void SetEquation(double coefficient1, double coefficient2, double coefficient3)
             {
 
-                    this.coefficient1 = coefficient1;
-                    this.coefficient2 = coefficient2;
-                    this.coefficient3 = coefficient3;
+                this.coefficient1 = coefficient1;
+                this.coefficient2 = coefficient2;
+                this.coefficient3 = coefficient3;
             }
 
             public override double[] GetCoefficients()
@@ -184,7 +209,7 @@ namespace SlutProjekt
                 return array;
             }
         }
-        
+
         public class Mathematics
         {
             public static double[] FindRealRoots(Equation equation)
@@ -204,10 +229,11 @@ namespace SlutProjekt
 
                     if (discriminant < 0)
                     {
-
+                        MessageBox.Show("ERROR: Det finns inga reella rötter.\nTips: Byt till komplexa rötter.");
+                        return null;
                     }
 
-                    if (discriminant > 0)
+                    else if (discriminant > 0)
                     {
                         roots = new double[2];
                         roots[0] = (-b + Math.Sqrt(discriminant)) / (2 * a);
@@ -215,18 +241,18 @@ namespace SlutProjekt
                         return roots;
                     }
 
-                    if (discriminant == 0)
+                    else if (discriminant == 0)
                     {
-                        roots = new double[1];             
+                        roots = new double[1];
                         roots[0] = (-b / (2 * a));
                         return roots;
                     }
-                    
+
 
                 }
-                else if (equationType == "PQEquation")
+                else
                 {
-                    
+
                     PQEquation pqEquation = equation as PQEquation;
                     double[] coefficients = pqEquation.GetCoefficients();
                     double p = coefficients[0];
@@ -236,27 +262,29 @@ namespace SlutProjekt
 
                     if (discriminant < 0)
                     {
-
+                        MessageBox.Show("ERROR: Det finns inga reella rötter.\nTips: Byt till komplexa rötter.");
+                        return null;
                     }
 
-                    if (discriminant > 0)
+                    else if (discriminant > 0)
                     {
                         roots = new double[2];
-                        roots[0] = (-p/2 + Math.Sqrt(discriminant));
-                        roots[1] = (-p/2 - Math.Sqrt(discriminant));
+                        roots[0] = (-p / 2 + Math.Sqrt(discriminant));
+                        roots[1] = (-p / 2 - Math.Sqrt(discriminant));
                         return roots;
                     }
 
-                    if (discriminant == 0)
+                    else if (discriminant == 0)
                     {
                         roots = new double[1];
                         roots[0] = (-p / 2);
                         return roots;
                     }
                 }
-                
+                return null;
+
             }
-            
+
             public static Complex[] FindComplexRoots(Equation equation)
             {
                 Complex[] rootsComplex = new Complex[2];
@@ -271,27 +299,24 @@ namespace SlutProjekt
                     double c = coefficients[2];
 
                     double discriminant = b * b - 4 * a * c;
-                    
+
                     if (discriminant >= 0)
                     {
-
+                        MessageBox.Show("ERROR: Det finns inga komplexa rötter.\nTips: Byt till reella rötter.");
+                        return null;
                     }
 
                     else if (discriminant < 0)
                     {
-                        Complex Re = (-b / (2*a*c));
+                        Complex Re = (-b / (2 * a * c));
                         Complex Im = Math.Sqrt(discriminant);
 
                         rootsComplex[0] = Re + Im * Complex.ImaginaryOne;
                         return rootsComplex;
                     }
-
                 }
-
-
-
-               else if (equationType == "PQEquation")
-               {
+                else
+                {
                     PQEquation pqEquation = equation as PQEquation;
                     double[] coefficients = pqEquation.GetCoefficients();
                     double p = coefficients[0];
@@ -301,7 +326,8 @@ namespace SlutProjekt
 
                     if (discriminant >= 0)
                     {
-                        // FELKOD
+                        MessageBox.Show("ERROR: Det finns inga komplexa rötter.\nTips: Byt till reella rötter.");
+                        return null;
                     }
 
                     else if (discriminant < 0 && complexActivated)
@@ -313,23 +339,39 @@ namespace SlutProjekt
                         return rootsComplex;
                     }
                 }
-        }
+                return null;
+            }
 
-        
-    }
-    public class Helpers
-    {
-        public static bool IsDouble(string input)
+
+        }
+        public class Helpers
         {
-            double output = 0;
-            if (Double.TryParse(input, out output))
+            public static bool IsDouble(string input)
             {
-                return true;
+                double output = 0;
+                if (Double.TryParse(input, out output))
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
             }
-            else
+
+            public static string EquationToString(Equation equation)
             {
-                return false;
+                string output = "";
+                if (equation.GetType().Name == "ABCEquation")
+                {
+                    output = $"{equation.GetCoefficients()[0]}x² + {equation.GetCoefficients()[1]}x + {equation.GetCoefficients()[2]} = 0";
+                }
+                else if (equation.GetType().Name == "PQEquation")
+                {
+                    output = $"x² + {equation.GetCoefficients()[0]}x + {equation.GetCoefficients()[1]} = 0";
+                }
+                return output;
             }
         }
     }
-    }
+}
