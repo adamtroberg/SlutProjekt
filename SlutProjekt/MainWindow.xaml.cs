@@ -21,35 +21,13 @@ namespace SlutProjekt
     /// <summary>
     /// Interaction logic for XAML
     /// </summary>
-    public partial class MainWindow : Window, INotifyPropertyChanged
+    public partial class MainWindow : Window
     {
         // Bool som används för att bestämma ifall användaren vill ha komplexa rötter eller inte.
         static bool complexActivated = false;
 
-        /// <summary>
-        /// 
-        /// </summary>
-        public MainWindow()
-        {
-            InitializeComponent();
-            DataContext = new MainViewModel();
-        }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        public class MainViewModel
-        {
-            
-            public EquationList<Equation> Equations { get; } = new EquationList<Equation>();
-        }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-        private void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
-
+        EquationsList<Equation> equationsList = new EquationsList<Equation>();
         /// <summary>
         /// Eventhandler för när knappen för komplexa tal trycks.
         /// </summary>
@@ -162,7 +140,13 @@ namespace SlutProjekt
                             lblSolvedRoots.Content = $"x₁ = {roots.Real} + {roots.Imaginary}i\nx₂ = {roots.Real} - {roots.Imaginary}i";
                         }
                     }
-                    ((MainViewModel)DataContext).Equations.AddEquation(currentEquation);
+                    equationsList.AddEquation(currentEquation);
+                    cBoxEquations.Items.Clear();
+                    for (int i = 0; i < equationsList.GetLength(); i++)
+                    {
+                        cBoxEquations.Items.Add(equationsList[i]);
+                    }
+                    
                 }
                 else
                 {
@@ -213,7 +197,12 @@ namespace SlutProjekt
                             lblSolvedRoots.Content = $"x₁ = {roots.Real} + {roots.Imaginary}i\nx₂ = {roots.Real} - {roots.Imaginary}i";
                         }
                     }
-                    ((MainViewModel)DataContext).Equations.AddEquation(currentEquation);
+                    equationsList.AddEquation(currentEquation);
+                    cBoxEquations.Items.Clear();
+                    for (int i = 0; i < equationsList.GetLength(); i++)
+                    {
+                        cBoxEquations.Items.Add(equationsList[i]);
+                    }
                 }
                 else
                 {
@@ -264,27 +253,26 @@ namespace SlutProjekt
         public class ABCEquation : Equation
         {
             // Lägger till den tredje koefficienten.
-            private double coefficient3;
+            private double _coefficient3;
 
             // Constructor för ABC Ekvation.
             public ABCEquation(double coefficient1, double coefficient2, double coefficient3) : base(coefficient1, coefficient2)
             {
-                this.coefficient3 = coefficient3;
+                this._coefficient3 = coefficient3;
             }
             
             // Override för GetEquation() som lägger till tredje koefficienten.
             public override string GetEquation()
             {
-                return $"{coefficient1}x² + {coefficient2}x + {coefficient3} = 0";
+                return $"{coefficient1}x² + {coefficient2}x + {_coefficient3} = 0";
             }
 
             // Setter för koefficienterna.
             public override void SetEquation(double coefficient1, double coefficient2, double coefficient3)
             {
-
                 this.coefficient1 = coefficient1;
                 this.coefficient2 = coefficient2;
-                this.coefficient3 = coefficient3;
+                this._coefficient3 = coefficient3;
             }
 
             // Getter för koefficienterna som returnar koefficienterna i en array.
@@ -293,7 +281,7 @@ namespace SlutProjekt
                 double[] array = new double[3];
                 array[0] = coefficient1;
                 array[1] = coefficient2;
-                array[2] = coefficient3;
+                array[2] = _coefficient3;
                 return array;
             }
         }
@@ -426,6 +414,7 @@ namespace SlutProjekt
                 return null;
 
             }
+            
 
             /// <summary>
             /// Metod för att beräkna komplexa rötter.
@@ -515,38 +504,58 @@ namespace SlutProjekt
         /// En egen generisk klass för att lagra ekvationer i en lista.
         /// </summary>
         /// <typeparam name="T"></typeparam>
-        public class EquationList<T> where T : Equation
+        public class EquationsList<T> where T : Equation
         {
-            private List<T> equations;
+            private List<T> _equations;
 
             // Constructor för listan.
-            public EquationList()
+            public EquationsList()
             {
-                equations = new List<T>();
+                _equations = new List<T>();
             }
 
             // Metod som lägger till ekvation i listan.
             public void AddEquation(T equation)
             {
-                equations.Add(equation);
+                _equations.Add(equation);
+            }
+
+            // Metod som kollar längden på listan.
+            public int GetLength()
+            {
+                return _equations.Count();
             }
 
             // Metod som tar bort ekvation från listan.
             public void RemoveEquation(T equation)
             {
-                equations.Remove(equation);
+                _equations.Remove(equation);
             }
 
             // Metod som clearar listan.
             public void ClearEquations()
             {
-                equations.Clear();
+                _equations.Clear();
+            }
+
+            // Indexerför listan
+            public T this[int i]
+            {
+                // Try Catch samt getter och setter.
+                get{
+                    try { return _equations[i]; }
+                    catch { return default(T); }
+                }
+                set{
+                    try { _equations[i] = value; }
+                    catch { _equations.Add(value); }
+                }
             }
 
             // Metod som returnar alla ekvatoiner i listan.
             public List<T> GetEquations()
             {
-                return equations;
+                return _equations;
             }
         }
 
@@ -559,7 +568,7 @@ namespace SlutProjekt
             /// Om inputen är en double returnar metoden true.
             /// </summary>
             /// <param name="input"></param>
-            /// <returns></returns>
+            /// <returns>True om inputen är en double</returns>
             public static bool IsDouble(string input)
             {
                 // Double för att parsea.

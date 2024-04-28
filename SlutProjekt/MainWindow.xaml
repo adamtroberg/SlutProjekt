@@ -6,7 +6,7 @@
     <Window.Resources>
         <SolidColorBrush x:Key="LightGreenColor" Color="LightGreen"/>
     </Window.Resources>
-    
+
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto"/>
@@ -42,12 +42,12 @@
 
         <StackPanel Grid.Column="1">
             <Label FontSize="20" FontWeight="Medium" Margin="10,10,10,10" Height="40" HorizontalAlignment="Center" Content="Resultat"/>
-            <Label Content="Ekvation:" Height="40" Width="200"/>
+            <Label FontWeight="Bold" Content="Ekvation:" Height="40" Width="200"/>
             <Label Name="lblEquation" HorizontalAlignment="Center" Content=""/>
-            <Label Content="Rötter:" Height="40" Width="200"/>
+            <Label FontWeight="Bold" Content="Rötter:" Height="40" Width="200"/>
             <Label x:Name="lblSolvedRoots" HorizontalAlignment="Center" Height="100" Content=""/>
             <Button Width="250" Height="50" Background="Salmon" Content="Rensa Lagrade Ekvationer"/>
         </StackPanel>
-        <ComboBox Name="cBoxEquations" Grid.Column="1" HorizontalAlignment="Center" Margin="0,404,0,0" DisplayMemberPath="EquationString" ItemsSource="{Binding Equations}"  VerticalAlignment="Top" Width="250" Height="50"/>
+        <ComboBox x:Name="cBoxEquations" Grid.Column="1" HorizontalAlignment="Center" Margin="0,404,0,0" DisplayMemberPath="EquationString" ItemsSource="{Binding edquationsList}"  VerticalAlignment="Top" Width="250" Height="50"/>
     </Grid>
 </Window>
