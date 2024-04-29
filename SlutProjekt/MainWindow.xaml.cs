@@ -91,6 +91,39 @@ namespace SlutProjekt
         }
 
         /// <summary>
+        /// Metod som uppdaterar ComboBoxen i UI:n genom att cleara den, och sen lägga tillbaka alla ekvationer från equationsList.
+        /// </summary>
+        /// <param name="equation"></param>
+        public void UpdateComboBox(Equation equation)
+        {
+            int length = equationsList.GetLength();
+            cBoxEquations.Items.Clear();
+            for (int i = 0; i < length; i++)
+            {
+                cBoxEquations.Items.Add(equationsList[i]);
+            }
+            length = equationsList.GetLength();
+            if (length > 5)
+            {
+                equationsList.RemoveEquation(0);
+                cBoxEquations.Items.Remove(0);
+            }
+        }
+
+        /// <summary>
+        /// Eventhandler för att cleara listan med tidigare ekvationer.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        public void ClearEquations(object sender, RoutedEventArgs e)
+        {
+            equationsList.ClearEquations();
+            cBoxEquations.Items.Clear();
+            lblEquation.Content = "";
+            lblRoots.Content = "";
+        }
+
+        /// <summary>
         /// Eventhandler för när knappen för att beräkna rötterna trycks.
         /// </summary>
         /// <param name="sender"></param>
@@ -125,7 +158,6 @@ namespace SlutProjekt
                             {
                                 lblSolvedRoots.Content = $"x₁ = {roots[0]}, x₂ = {roots[1]}";
                             }
-                           
                         }
                     }
                     // Ifall det är komplexa rötter som söks.
@@ -141,12 +173,8 @@ namespace SlutProjekt
                         }
                     }
                     equationsList.AddEquation(currentEquation);
-                    cBoxEquations.Items.Clear();
-                    for (int i = 0; i < equationsList.GetLength(); i++)
-                    {
-                        cBoxEquations.Items.Add(equationsList[i]);
-                    }
-                    
+                    // Uppdatera ComboBoxen i UI:n.
+                    UpdateComboBox(currentEquation);
                 }
                 else
                 {
@@ -183,7 +211,6 @@ namespace SlutProjekt
                                 lblSolvedRoots.Content = $"x₁ = {roots[0]}, x₂ = {roots[1]}";
                             }
                         }
-
                     }
                     // Om det är komplexa rötter.
                     else
@@ -198,11 +225,8 @@ namespace SlutProjekt
                         }
                     }
                     equationsList.AddEquation(currentEquation);
-                    cBoxEquations.Items.Clear();
-                    for (int i = 0; i < equationsList.GetLength(); i++)
-                    {
-                        cBoxEquations.Items.Add(equationsList[i]);
-                    }
+                    // Uppdatera ComboBoxen i UI:n.
+                    UpdateComboBox(currentEquation);
                 }
                 else
                 {
@@ -215,7 +239,6 @@ namespace SlutProjekt
                 // Felmeddelande om en form på ekvationen inte valts.
                 MessageBox.Show("Kan inte beräkna: Välj en form på ekvationen.");
             }
-
         }
 
         /// <summary>
@@ -293,9 +316,7 @@ namespace SlutProjekt
         {
             // Constructor för PQEquation.
             public PQEquation(double coefficient1, double coefficient2) : base(coefficient1, coefficient2)
-            {
-
-            }
+            {}
 
             // Getter som returnar en string för ekvationen.
             public override string GetEquation()
@@ -325,6 +346,47 @@ namespace SlutProjekt
         /// </summary>
         public class Mathematics
         {
+            /// <summary>
+            /// 
+            /// </summary>
+            public static bool CheckDiscriminantSign(Equation equation)
+            {
+                string equationType = equation.GetType().Name;
+                if (equationType == "ABCEquation")
+                {
+                    ABCEquation abcEquation = equation as ABCEquation;
+                    double[] coefficients = abcEquation.GetCoefficients();
+                    double a = coefficients[0];
+                    double b = coefficients[1];
+                    double c = coefficients[2];
+
+                    if ((b * b - 4 * a * c) < 0)
+                    {
+                        return false;
+                    }
+                    else
+                    {
+                        return true;
+                    }
+                }
+                else
+                {
+                    PQEquation pqEquation = equation as PQEquation;
+                    double[] coefficients = pqEquation.GetCoefficients();
+                    double p = coefficients[0];
+                    double q = coefficients[1];
+
+                    if ((p * p * 0.25 - q) < 0 )
+                    {
+                        return false;
+                    }
+                    else
+                    {
+                        return true;
+                    }
+                }
+            }
+
             /// <summary>
             /// Metod för att hitta reella rötter till en ekvation.
             /// </summary>
@@ -412,9 +474,7 @@ namespace SlutProjekt
                     }
                 }
                 return null;
-
             }
-            
 
             /// <summary>
             /// Metod för att beräkna komplexa rötter.
@@ -496,8 +556,6 @@ namespace SlutProjekt
                 }
                 return 0;
             }
-
-
         }
 
         /// <summary>
@@ -527,9 +585,9 @@ namespace SlutProjekt
             }
 
             // Metod som tar bort ekvation från listan.
-            public void RemoveEquation(T equation)
+            public void RemoveEquation(int index)
             {
-                _equations.Remove(equation);
+                _equations.RemoveAt(index);
             }
 
             // Metod som clearar listan.
@@ -538,7 +596,7 @@ namespace SlutProjekt
                 _equations.Clear();
             }
 
-            // Indexerför listan
+            // Indexer för listan
             public T this[int i]
             {
                 // Try Catch samt getter och setter.
@@ -584,6 +642,44 @@ namespace SlutProjekt
                     // Om det inte gick return false.
                     return false;
                 }
+            }
+        }
+
+        private void cBoxEquations_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+
+            Equation equationSelected = equationsList[cBoxEquations.SelectedIndex];
+            if (cBoxEquations.SelectedIndex >= 0)
+            {
+                lblEquation.Content = equationSelected.EquationString;
+                if (Mathematics.CheckDiscriminantSign(equationSelected))
+                {
+                    double[] roots = Mathematics.FindRealRoots(equationSelected);
+                    if (roots != null)
+                    {
+                        // Om det är en "dubbelrot"
+                        if (roots.Length == 1)
+                        {
+                            lblSolvedRoots.Content = $"x = {roots[0]}";
+                        }
+                        // Om det finns två lösningar.
+                        else
+                        {
+                            lblSolvedRoots.Content = $"x₁ = {roots[0]}, x₂ = {roots[1]}";
+                        }
+                    }
+                }
+                else
+                {
+                    Complex root = Mathematics.FindComplexRoots(equationSelected);
+                    // Om den hittade rötter.
+                    if (root != 0)
+                    {
+                        // Skriv ut rötterna i UIn.
+                        lblSolvedRoots.Content = $"x₁ = {root.Real} + {root.Imaginary}i\nx₂ = {root.Real} - {root.Imaginary}i";
+                    }
+                }
+                UpdateComboBox(equationSelected);
             }
         }
     }

@@ -46,8 +46,11 @@
             <Label Name="lblEquation" HorizontalAlignment="Center" Content=""/>
             <Label FontWeight="Bold" Content="Rötter:" Height="40" Width="200"/>
             <Label x:Name="lblSolvedRoots" HorizontalAlignment="Center" Height="100" Content=""/>
-            <Button Width="250" Height="50" Background="Salmon" Content="Rensa Lagrade Ekvationer"/>
+            <Button Width="250" Height="50" Background="Salmon" Margin="0,200,0,0" Click="ClearEquations" Content="Rensa Lagrade Ekvationer"/>
         </StackPanel>
-        <ComboBox x:Name="cBoxEquations" Grid.Column="1" HorizontalAlignment="Center" Margin="0,404,0,0" DisplayMemberPath="EquationString" ItemsSource="{Binding edquationsList}"  VerticalAlignment="Top" Width="250" Height="50"/>
+        <ComboBox x:Name="cBoxEquations" Grid.Column="1" HorizontalAlignment="Center" Margin="0,400,0,0" DisplayMemberPath="EquationString" VerticalAlignment="Top" Width="250" Height="50" SelectionChanged="cBoxEquations_SelectionChanged">
+            <ComboBox Width="120"/>
+            <ComboBox Width="120"/>
+        </ComboBox>
     </Grid>
 </Window>
