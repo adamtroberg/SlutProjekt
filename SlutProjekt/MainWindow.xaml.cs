@@ -23,11 +23,12 @@ namespace SlutProjekt
     /// </summary>
     public partial class MainWindow : Window
     {
-        // Bool som används för att bestämma ifall användaren vill ha komplexa rötter eller inte.
+        // Bool som används för att bestämma ifall användaren vill ha komplexa rötter eller inte. Startinställningen är för reella tal.
         static bool complexActivated = false;
 
-
+        // Initiatea equationsList
         EquationsList<Equation> equationsList = new EquationsList<Equation>();
+
         /// <summary>
         /// Eventhandler för när knappen för komplexa tal trycks.
         /// </summary>
@@ -96,17 +97,21 @@ namespace SlutProjekt
         /// <param name="equation"></param>
         public void UpdateComboBox(Equation equation)
         {
+            // Längden på equationlist.
             int length = equationsList.GetLength();
+            // Cleara comboboxen.
             cBoxEquations.Items.Clear();
+            // En loop som lägger till alla ekvationer från equationList i comboboxen (OBS: Nödlösning då Data Binding inte funkade mellan XAML och C#)
             for (int i = 0; i < length; i++)
             {
                 cBoxEquations.Items.Add(equationsList[i]);
             }
-            length = equationsList.GetLength();
+            
+            // Om längden på equationsList är längre än 5 ska programmet förkorta Comboboxen och equationlisten för att spara plats.
             if (length > 5)
             {
                 equationsList.RemoveEquation(0);
-                cBoxEquations.Items.Remove(0);
+                cBoxEquations.Items.RemoveAt(0);
             }
         }
 
@@ -120,7 +125,7 @@ namespace SlutProjekt
             equationsList.ClearEquations();
             cBoxEquations.Items.Clear();
             lblEquation.Content = "";
-            lblRoots.Content = "";
+            lblSolvedRoots.Content = "";
         }
 
         /// <summary>
@@ -172,6 +177,7 @@ namespace SlutProjekt
                             lblSolvedRoots.Content = $"x₁ = {roots.Real} + {roots.Imaginary}i\nx₂ = {roots.Real} - {roots.Imaginary}i";
                         }
                     }
+                    // Lägg till nuvarande ekvationen i equationsList.
                     equationsList.AddEquation(currentEquation);
                     // Uppdatera ComboBoxen i UI:n.
                     UpdateComboBox(currentEquation);
@@ -224,6 +230,7 @@ namespace SlutProjekt
                             lblSolvedRoots.Content = $"x₁ = {roots.Real} + {roots.Imaginary}i\nx₂ = {roots.Real} - {roots.Imaginary}i";
                         }
                     }
+                    // Lägg till nuvarande ekvationen i equationsList.
                     equationsList.AddEquation(currentEquation);
                     // Uppdatera ComboBoxen i UI:n.
                     UpdateComboBox(currentEquation);
@@ -347,39 +354,50 @@ namespace SlutProjekt
         public class Mathematics
         {
             /// <summary>
-            /// 
+            /// En metod för att kolla ifall diskriminanten är större eller mindre än 0
             /// </summary>
+            /// <param name="equation"></param>
+            /// <returns> True om den är >= 0, false om den är < 0 </returns>
             public static bool CheckDiscriminantSign(Equation equation)
             {
+                // Hitta typen av ekvation.
                 string equationType = equation.GetType().Name;
+                // Om det är en ABCEkvation
                 if (equationType == "ABCEquation")
                 {
+                    // Hämta koefficienterna för ABCEkvationen.
                     ABCEquation abcEquation = equation as ABCEquation;
                     double[] coefficients = abcEquation.GetCoefficients();
                     double a = coefficients[0];
                     double b = coefficients[1];
                     double c = coefficients[2];
 
+                    // Om diskriminanten är mindre än 0, returna false.
                     if ((b * b - 4 * a * c) < 0)
                     {
                         return false;
                     }
+                    // Om den är större än 0, returna true.
                     else
                     {
                         return true;
                     }
                 }
+                // Om det är en PQEkvation.
                 else
                 {
+                    // Hämta värdena för PQEkvationen.
                     PQEquation pqEquation = equation as PQEquation;
                     double[] coefficients = pqEquation.GetCoefficients();
                     double p = coefficients[0];
                     double q = coefficients[1];
 
+                    // Om diskriminanten är mindre än noll, returna false.
                     if ((p * p * 0.25 - q) < 0 )
                     {
                         return false;
                     }
+                    // Om den är större än noll, returna true.
                     else
                     {
                         return true;
@@ -473,6 +491,7 @@ namespace SlutProjekt
                         return roots;
                     }
                 }
+                // Hit når man aldrig.
                 return null;
             }
 
@@ -554,6 +573,7 @@ namespace SlutProjekt
                         return rootsComplex;
                     }
                 }
+                // Hit når man aldrig
                 return 0;
             }
         }
@@ -599,7 +619,7 @@ namespace SlutProjekt
             // Indexer för listan
             public T this[int i]
             {
-                // Try Catch samt getter och setter.
+                // Try Catch för getter och setter för att förhindra krasch.
                 get{
                     try { return _equations[i]; }
                     catch { return default(T); }
@@ -645,16 +665,26 @@ namespace SlutProjekt
             }
         }
 
+        /// <summary>
+        /// Eventhandler för när en ekvation väljs i comboboxen.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void cBoxEquations_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-
+            // Hitta vilken ekvation som klickades på.
             Equation equationSelected = equationsList[cBoxEquations.SelectedIndex];
+            // För att förhindra krasch.
             if (cBoxEquations.SelectedIndex >= 0)
             {
+                // Sätt Label Equation till nya ekkvationen.
                 lblEquation.Content = equationSelected.EquationString;
+                // Kolla signen på discriminanten
                 if (Mathematics.CheckDiscriminantSign(equationSelected))
                 {
+                    // Hitta rötterna till ekvationen om det är reella rötter.
                     double[] roots = Mathematics.FindRealRoots(equationSelected);
+                    // Kolla att rötter hittades.
                     if (roots != null)
                     {
                         // Om det är en "dubbelrot"
@@ -669,8 +699,10 @@ namespace SlutProjekt
                         }
                     }
                 }
+                // Om det är komplexa rötter.
                 else
                 {
+                    // Hitta komplexa roten.
                     Complex root = Mathematics.FindComplexRoots(equationSelected);
                     // Om den hittade rötter.
                     if (root != 0)
@@ -679,6 +711,7 @@ namespace SlutProjekt
                         lblSolvedRoots.Content = $"x₁ = {root.Real} + {root.Imaginary}i\nx₂ = {root.Real} - {root.Imaginary}i";
                     }
                 }
+                // Updatera comboboxen igen.
                 UpdateComboBox(equationSelected);
             }
         }
