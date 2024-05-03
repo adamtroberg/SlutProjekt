@@ -144,7 +144,7 @@ namespace SlutProjekt
                     // Skapa en instans av ABCEkvation genom att parsea värdena i UIn.
                     ABCEquation currentEquation = new ABCEquation(Double.Parse(txtboxA.Text), Double.Parse(txtboxB.Text), Double.Parse(txtboxC.Text));
                     // Visa vilken ekvation det är på UIn.
-                    lblEquation.Content = currentEquation.EquationString;
+                    lblEquation.Content = currentEquation.equationString;
                     // Ifall det söks reella rötter.
                     if (complexActivated == false)
                     {
@@ -197,7 +197,7 @@ namespace SlutProjekt
                     // Skapa en instans av PQEkvation genom att parsea värdena i UIn.
                     PQEquation currentEquation = new PQEquation(Double.Parse(txtboxB.Text), Double.Parse(txtboxC.Text));
                     // Visa vilken ekvation det är på UIn.
-                    lblEquation.Content = currentEquation.EquationString;
+                    lblEquation.Content = currentEquation.equationString;
                     // Om det är reella rötter som söks.
                     if (complexActivated == false)
                     {
@@ -274,7 +274,7 @@ namespace SlutProjekt
             public abstract string GetEquation();
 
             // Attribut som kör GetEquation (behövs för att kunna få EquationString från UI filen.
-            public string EquationString => GetEquation();
+            public string equationString => GetEquation();
         }
 
         /// <summary>
@@ -678,7 +678,7 @@ namespace SlutProjekt
             if (cBoxEquations.SelectedIndex >= 0)
             {
                 // Sätt Label Equation till nya ekkvationen.
-                lblEquation.Content = equationSelected.EquationString;
+                lblEquation.Content = equationSelected.equationString;
                 // Kolla signen på discriminanten
                 if (Mathematics.CheckDiscriminantSign(equationSelected))
                 {
