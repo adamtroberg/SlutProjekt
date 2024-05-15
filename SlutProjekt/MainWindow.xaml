@@ -24,7 +24,7 @@
                     <RowDefinition Height="*" />
                     <RowDefinition Height="*" />
                 </Grid.RowDefinitions>
-                <Button Click="RealChecked" Name="btnReal" Grid.Column="0" Grid.Row="0" Width="180" Height="50" Content="Reella Tal"/>
+                <Button Click="RealChecked" Name="btnReal" Grid.Column="0" Grid.Row="0" Width="180" IsEnabled="False" Height="50" Content="Reella Tal"/>
                 <Button Click="ComplexChecked" Name="btnComplex" Grid.Column="1" Grid.Row="0" Width="180" Height="50" Content="Komplexa Tal"/>
                 <Button Margin="0,10,0,0" Click="ABCChecked" Name="btnABC" Grid.Column="0" Grid.Row="1" Width="180" Height="50" Content="ABC-form"/>
                 <Button Margin="0,10,0,0" Click="PQChecked" Name="btnPQ" Grid.Column="1" Grid.Row="1" Width="180" Height="50" Content="PQ-form"/>
